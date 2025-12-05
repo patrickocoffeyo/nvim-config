@@ -5,3 +5,4 @@ vim.g.maplocalleader = " "
 -- Bootstrap config.
 require("config.lazy")
 require("config.options")
+require("config.keymaps")

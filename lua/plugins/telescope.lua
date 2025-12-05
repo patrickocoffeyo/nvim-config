@@ -1,44 +1,27 @@
 return {
   "nvim-telescope/telescope.nvim",
-  tag = "0.1.4",
+  tag = "v0.2.0",
+  lazy = false,
   dependencies = {
     "nvim-lua/plenary.nvim",
-    {
-      "nvim-telescope/telescope-fzf-native.nvim",
-      build = "make",
-      cond = function()
-        return vim.fn.executable("make") == 1
-      end,
-    },
+    { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
   },
 
   config = function()
     local telescope = require("telescope")
-
     telescope.setup({
       defaults = {
-        sorting_strategy = "ascending",
-
-        vimgrep_arguments = {
-          "rg",
-          "--color=never",
-          "--no-heading",
-          "--with-filename",
-          "--line-number",
-          "--column",
-          "--smart-case",
-          "--hidden",
-          "--ignore",
-        },
-
-        find_command = {
-          "rg",
-          "--files",
-          "--hidden",
-          "--ignore",
+        file_ignore_patterns = { "%.git/" },
+        file_sorter = require("telescope.sorters").get_fuzzy_file,
+        file_ignore_patterns = { "%.git/" },
+      },
+      pickers = {
+        find_files = {
+          hidden = true,
+          follow = true,
+          file_ignore_patterns = { "%.git/" },
         },
       },
-
       extensions = {
         fzf = {
           fuzzy = false,
@@ -49,32 +32,14 @@ return {
       },
     })
 
-    -- Enable fzf extension.
-    pcall(function()
-      telescope.load_extension("fzf")
-    end)
+    -- Load fzf extension.
+    pcall(telescope.load_extension, "fzf")
 
     -- Keymaps.
-    local keymap = vim.keymap.set
-    local builtin = require("telescope.builtin")
-    local rootFilePatterns = { ".git", "go.mod", "package.json" }
-
-    vim.keymap.set("n", "<leader>ff", function()
-      local cwd = vim.fn.getcwd()
-      local root = vim.fs.root(cwd, rootFilePatterns)
-      builtin.find_files({
-        cwd = root or cwd,
-      })
-    end, { desc = "Find files (cwd)" })
-
-    vim.keymap.set("n", "<leader>fr", function()
-      require("telescope").extensions.frecency.frecency({
-        workspace = "CWD",
-      })
-    end, { desc = "Recent Files (Frecency)" })
-
-    keymap("n", "<leader>fg", builtin.live_grep, { desc = "Live grep" })
-    keymap("n", "<leader>fb", builtin.buffers, { desc = "Find buffers" })
-    keymap("n", "<leader>fh", builtin.help_tags, { desc = "Find help" })
+    local builtin = require('telescope.builtin')
+    vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })
+    vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Telescope live grep' })
+    vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
+    vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
   end,
 }
