@@ -6,18 +6,17 @@ return {
     require("coverage").setup({
       auto_reload = true,
 
-      -- ⭐ Critical: tells nvim-coverage where the coverage file is
       load_coverage_fn = function(lang)
         local file = vim.fn.expand("%:p")
-        local dir  = vim.fn.fnamemodify(file, ":h")
+        local dir = vim.fn.fnamemodify(file, ":h")
 
-        -- Per-package coverage file
+        -- Per-package Go coverage
         local pkg_cov = dir .. "/coverage.out"
         if vim.loop.fs_stat(pkg_cov) then
           return pkg_cov
         end
 
-        -- Fallback: project root
+        -- Fallback to project root (probably won't be needed)
         local root = vim.fs.root(file, { "go.mod", ".git" })
         if root then
           local root_cov = root .. "/coverage.out"
@@ -30,7 +29,7 @@ return {
       end,
 
       highlights = {
-        covered =   { fg = "#00ff00" },
+        covered   = { fg = "#00ff00" },
         uncovered = { fg = "#ff0000" },
       },
 

@@ -3,40 +3,39 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
-    "nvim-neotest/neotest-go",
     "antoinemadec/FixCursorHold.nvim",
     "nvim-neotest/nvim-nio",
+    {
+      "fredrikaverpil/neotest-golang",
+      version = "*", 
+      build = function()
+        vim.system({"go", "install", "gotest.tools/gotestsum@latest"}):wait()
+      end,
+    },
   },
 
   config = function()
+    local config = {
+      runner = "gotestsum",
+    }
     local neotest = require("neotest")
-
     neotest.setup({
       adapters = {
-        require("neotest-go")({
-          recursive_run = true,
-          args = {
-            "-count=1",
-            "-timeout=60s",
-            "-coverprofile=coverage.out",
-          },
-        }),
+        require("neotest-golang")(config),
       },
     })
 
-    -- Run Go tests automatically on file save.
     vim.api.nvim_create_autocmd("BufWritePost", {
       pattern = "*.go",
       callback = function()
-        local neotest = require("neotest")
-        local coverage = require("coverage")
-
         local file = vim.fs.normalize(vim.fn.expand("%:p"))
-        local dir  = vim.fs.dirname(file)
+        local dir = vim.fs.dirname(file)
         local coverage_file = dir .. "/coverage.out"
 
+        -- Run tests for this package directory.
         neotest.run.run(dir)
 
+        -- Poll for updated coverage.out.
         local before = vim.loop.fs_stat(coverage_file)
           and vim.loop.fs_stat(coverage_file).mtime.sec
 
@@ -48,12 +47,8 @@ return {
             timer:close()
 
             vim.schedule(function()
-              if vim.loop.fs_stat(coverage_file) then
-                coverage.load({ coverage_file = coverage_file })
-                coverage.show()
-              else
-                print("Coverage file not found at " .. coverage_file)
-              end
+              require("coverage").load()
+              require("coverage").show()
             end)
           end
         end)

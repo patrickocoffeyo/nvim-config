@@ -1,6 +1,6 @@
 local M = {}
 
--- Checks if Copilot inline suggestion is visible
+-- Checks if Copilot inline suggestion is visible.
 local function has_copilot_suggestion()
   local ok, suggestion = pcall(require, "copilot.suggestion")
   return ok and suggestion.is_visible()
