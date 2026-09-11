@@ -5,6 +5,31 @@ vim.keymap.set("n", "<leader>uf", function()
   format.toggle()
 end, { desc = "Toggle format on save" })
 
+vim.keymap.set("n", "Z", "<Cmd>BufferPrevious<CR>", { desc = "Previous buffer tab" })
+vim.keymap.set("n", "X", "<Cmd>BufferNext<CR>", { desc = "Next buffer tab" })
+
+vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Focus left window" })
+vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Focus lower window" })
+vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Focus upper window" })
+vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Focus right window" })
+
+vim.keymap.set("n", "<leader>bp", "<Cmd>BufferPrevious<CR>", { desc = "Previous buffer tab" })
+vim.keymap.set("n", "<leader>bn", "<Cmd>BufferNext<CR>", { desc = "Next buffer tab" })
+vim.keymap.set("n", "<leader>bb", "<Cmd>BufferPick<CR>", { desc = "Pick buffer tab" })
+vim.keymap.set("n", "<leader>bc", "<Cmd>BufferClose<CR>", { desc = "Close buffer tab" })
+
+vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action, { desc = "LSP code action" })
+
+vim.keymap.set("n", "<leader>li", function()
+  vim.lsp.buf.code_action({
+    apply = true,
+    context = {
+      only = { "source.organizeImports" },
+      diagnostics = {},
+    },
+  })
+end, { desc = "Organize imports" })
+
 vim.keymap.set("n", "<leader>tn", function()
   go_test.run_nearest()
 end, { desc = "Run nearest test" })

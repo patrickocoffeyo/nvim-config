@@ -9,6 +9,7 @@ tests/coverage, formatting, and Cursor Agent.
 - `rg`, used by Telescope live grep.
 - `fd` or `fdfind`, used by Telescope file finding.
 - Go toolchain, including `gofmt`.
+- `goimports`, used for Go format-on-save and import cleanup.
 - `tree-sitter`, used to install and maintain Tree-sitter parsers.
 - Mason-managed Go tools: `gopls`, `golangci-lint`,
   `golangci-lint-langserver`, and `gotestsum`.
@@ -44,6 +45,7 @@ General options live in `lua/config/options.lua`.
 | --- | --- | --- |
 | `folke/lazy.nvim` | `lua/config/lazy.lua` | Plugin manager and bootstrapper. Imports every spec in `lua/plugins`. |
 | `ellisonleao/gruvbox.nvim` | `lua/plugins/colorscheme.lua` | Dark gruvbox colorscheme. |
+| `romgrk/barbar.nvim` | `lua/plugins/barbar.lua` | Polished top tabline for buffers, with clickable tabs, slanted separators, and buffer picking. Neo-tree buffers are hidden from the tabline. |
 | `nvim-lualine/lualine.nvim` | `lua/plugins/lualine.lua` | Statusline with mode, branch, diff, filename, filetype, progress, and location. |
 | `nvim-neo-tree/neo-tree.nvim` | `lua/plugins/neotree.lua` | File tree. Opens automatically on startup when no file argument is provided. |
 | `nvim-telescope/telescope.nvim` | `lua/plugins/telescope.lua` | Fuzzy finding for files, grep, buffers, and help. |
@@ -72,6 +74,26 @@ Supporting dependencies include `nvim-lua/plenary.nvim`,
 General:
 
 - `<leader>uf`: toggle format-on-save for the current Neovim session.
+- `<leader>la`: show LSP code actions.
+- `<leader>li`: organize imports for the current file.
+- `Z`: move to the previous Barbar buffer tab. This overrides Vim's default `ZZ`
+  prefix behavior.
+- `X`: move to the next Barbar buffer tab. This overrides Vim's default
+  backward-delete key.
+
+Window focus:
+
+- `<C-h>`: focus the window to the left.
+- `<C-j>`: focus the window below.
+- `<C-k>`: focus the window above.
+- `<C-l>`: focus the window to the right.
+
+Buffer tabs:
+
+- `<leader>bp`: move to the previous Barbar buffer tab.
+- `<leader>bn`: move to the next Barbar buffer tab.
+- `<leader>bb`: pick a Barbar buffer tab by letter.
+- `<leader>bc`: close the current Barbar buffer tab.
 
 Telescope:
 
@@ -84,6 +106,11 @@ File tree:
 
 - `<leader>e`: toggle Neo-tree on the left.
 - `<leader>o`: focus Neo-tree on the left.
+- `<Enter>` in Neo-tree: open the selected file in the current window as a
+  Barbar buffer tab.
+- `t` in Neo-tree: open the selected file in a native Vim tab page.
+- `s` in Neo-tree: open the selected file in a vertical split.
+- `S` in Neo-tree: open the selected file in a horizontal split.
 
 Go tests:
 
@@ -97,6 +124,7 @@ Go tests:
 Cursor Agent:
 
 - `<leader>ca` in normal mode: toggle the Cursor Agent terminal.
+- `<C-q>` in a Cursor Agent terminal: close the floating window.
 - `<leader>ca` in visual mode: send the current selection to Cursor Agent.
 - `<leader>cA` in normal mode: send the current buffer to Cursor Agent.
 
@@ -136,11 +164,16 @@ Go diagnostics come from two LSP clients:
 or `.golangci.json`. The extra `gopls` staticcheck-style lint analyzers are
 left off so project lint policy lives in `golangci-lint`.
 
+`gopls` completion is configured with `completeUnimported`, function-call
+completion, and placeholders enabled. Accepting an unimported package or symbol
+completion can add the import automatically when `gopls` provides that edit.
+
 ## Formatting
 
 Format-on-save is enabled by default and managed by `conform.nvim`.
 
-- Go files are formatted with `gofmt`.
+- Go files prefer `goimports`, with `gofmt` as a fallback. `goimports` applies
+  standard Go formatting and adds/removes imports.
 - JavaScript, TypeScript, CSS, HTML, JSON, YAML, and Markdown use Prettier only
   when the project has a Prettier config file or a `prettier` key in
   `package.json`.

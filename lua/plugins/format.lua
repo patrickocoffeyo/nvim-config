@@ -54,7 +54,7 @@ return {
       end,
 
       formatters_by_ft = {
-        go = { "gofmt" },
+        go = { "goimports", "gofmt", stop_after_first = true },
 
         javascript = { "prettierd", "prettier", stop_after_first = true },
         javascriptreact = { "prettierd", "prettier", stop_after_first = true },

@@ -52,7 +52,10 @@ return {
         capabilities = capabilities,
         settings = {
           gopls = {
+            completeFunctionCalls = true,
+            completeUnimported = true,
             gofumpt = true,
+            usePlaceholders = true,
           },
         },
       })
