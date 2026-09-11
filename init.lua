@@ -6,3 +6,5 @@ vim.g.maplocalleader = " "
 require("config.lazy")
 require("config.options")
 require("config.keymaps")
+
+require("cursor-agent").setup({})
