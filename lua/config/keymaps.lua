@@ -1,21 +1,25 @@
-local neotest = require("neotest")
+local go_test = require("config.go-test")
 
 vim.keymap.set("n", "<leader>tn", function()
-  neotest.run.run()
+  go_test.run_nearest()
 end, { desc = "Run nearest test" })
 
 vim.keymap.set("n", "<leader>tf", function()
-  neotest.run.run(vim.fn.expand("%"))
+  go_test.run_file()
 end, { desc = "Run file tests" })
 
+vim.keymap.set("n", "<leader>tp", function()
+  go_test.run_package()
+end, { desc = "Run package tests" })
+
 vim.keymap.set("n", "<leader>ta", function()
-  neotest.run.run({ suite = true })
+  go_test.run_suite()
 end, { desc = "Run all tests" })
 
 vim.keymap.set("n", "<leader>ts", function()
-  neotest.summary.toggle()
+  require("neotest").summary.toggle()
 end, { desc = "Toggle test summary" })
 
 vim.keymap.set("n", "<leader>to", function()
-  neotest.output.open({ enter = true })
+  require("neotest").output.open({ enter = true })
 end, { desc = "Show test output" })

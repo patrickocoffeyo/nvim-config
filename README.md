@@ -7,8 +7,36 @@
 
 ## Installation
 
-- Create a config directory: `mdir -p ~/.config/nvim`
+- Create a config directory: `mkdir -p ~/.config/nvim`
 - Clone this repository into the config directory:
   - `cd ~/.config/nvim`
   - `git clone git@github.com:patrickocoffeyo/nvim-config.git .`
 - Open Neovim and run `:Lazy sync` to install plugins.
+
+## Go Tests And Coverage
+
+Go test keymaps are routed through `lua/config/go-test.lua`, which bridges
+`neotest-golang` and `nvim-coverage`.
+
+- `<leader>tn`: run the nearest test.
+- `<leader>tf`: run tests in the current file.
+- `<leader>tp`: run tests in the current package.
+- `<leader>ta`: run the full test suite.
+- `<leader>ts`: toggle the test summary.
+- `<leader>to`: open test output.
+
+Each Go test run writes a package-local `coverage.out`, loads it into
+`nvim-coverage`, shows the coverage signs, and then removes the generated
+`coverage.out` file.
+
+## Go Linting
+
+Go diagnostics come from two LSP clients:
+
+- `gopls`: language server features and compiler diagnostics.
+- `golangci_lint_ls`: lint diagnostics from `golangci-lint`.
+
+`golangci_lint_ls` uses the nearest project config file supported by
+`golangci-lint`, such as `.golangci.yml`, `.golangci.yaml`, `.golangci.toml`,
+or `.golangci.json`. The extra `gopls` staticcheck-style lint analyzers are
+left off so project lint policy lives in `golangci-lint`.

@@ -3,39 +3,49 @@ return {
   dependencies = { "nvim-lua/plenary.nvim" },
 
   config = function()
+    local function go_coverage_file()
+      if vim.g.go_test_coverage_file and vim.uv.fs_stat(vim.g.go_test_coverage_file) then
+        return vim.g.go_test_coverage_file
+      end
+
+      local file = vim.api.nvim_buf_get_name(0)
+      if file == "" then
+        return "coverage.out"
+      end
+
+      local dir = vim.fs.dirname(vim.fs.normalize(file))
+      local pkg_cov = dir .. "/coverage.out"
+      if vim.uv.fs_stat(pkg_cov) then
+        return pkg_cov
+      end
+
+      local root = vim.fs.root(file, { "go.mod", ".git" })
+      if root then
+        return root .. "/coverage.out"
+      end
+
+      return pkg_cov
+    end
+
     require("coverage").setup({
-      auto_reload = true,
+      auto_reload = false,
 
-      load_coverage_fn = function(lang)
-        local file = vim.fn.expand("%:p")
-        local dir = vim.fn.fnamemodify(file, ":h")
-
-        -- Per-package Go coverage
-        local pkg_cov = dir .. "/coverage.out"
-        if vim.loop.fs_stat(pkg_cov) then
-          return pkg_cov
-        end
-
-        -- Fallback to project root (probably won't be needed)
-        local root = vim.fs.root(file, { "go.mod", ".git" })
-        if root then
-          local root_cov = root .. "/coverage.out"
-          if vim.loop.fs_stat(root_cov) then
-            return root_cov
-          end
-        end
-
-        return nil
-      end,
+      lang = {
+        go = {
+          coverage_file = go_coverage_file,
+        },
+      },
 
       highlights = {
-        covered   = { fg = "#00ff00" },
-        uncovered = { fg = "#ff0000" },
+        covered = { fg = "#b8bb26" },
+        uncovered = { fg = "#fb4934" },
+        partial = { fg = "#fabd2f" },
       },
 
       signs = {
-        covered   = { hl = "CoverageCovered",   text = "▎" },
-        uncovered = { hl = "CoverageUncovered", text = "▎" },
+        covered = { hl = "CoverageCovered", text = "▌" },
+        uncovered = { hl = "CoverageUncovered", text = "▌" },
+        partial = { hl = "CoveragePartial", text = "▌" },
       },
     })
   end,

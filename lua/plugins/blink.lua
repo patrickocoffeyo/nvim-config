@@ -1,5 +1,3 @@
-local copilot_tab = require("config.copilot-tab")
-
 return {
   "saghen/blink.cmp",
   version = "*",
@@ -13,9 +11,6 @@ return {
       preset = "none",
       ["<Tab>"] = {
         function(cmp)
-          -- If a copilot suggestion is visible, accept it.
-          if copilot_tab.accept_copilot() then return end
-
           -- If completion menu is visible, select next item.
           if cmp.is_menu_visible() then
             return cmp.select_next()

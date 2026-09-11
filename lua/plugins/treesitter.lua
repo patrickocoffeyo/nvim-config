@@ -1,35 +1,40 @@
+local languages = {
+  "go",
+  "lua",
+  "vim",
+  "vimdoc",
+  "javascript",
+  "typescript",
+  "tsx",
+  "json",
+}
+
 return {
   "nvim-treesitter/nvim-treesitter",
-  build = ":TSUpdate",
+  branch = "main",
+  lazy = false,
+  build = function()
+    require("nvim-treesitter").install(languages):wait(300000)
+  end,
 
   config = function()
-    require("nvim-treesitter.configs").setup({
-      ensure_installed = {
+    require("nvim-treesitter").setup()
+
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = {
         "go",
         "lua",
         "vim",
-        "vimdoc",
+        "help",
         "javascript",
         "typescript",
-        "tsx",
+        "typescriptreact",
         "json",
       },
-
-      highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = false,
-      },
-
-      indent = { enable = true },
-
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = "<CR>",
-          node_incremental = "<CR>",
-          node_decremental = "<BS>",
-        },
-      },
+      callback = function()
+        pcall(vim.treesitter.start)
+        vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+      end,
     })
   end,
 }
