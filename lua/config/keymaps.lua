@@ -1,4 +1,9 @@
 local go_test = require("config.go-test")
+local format = require("config.format")
+
+vim.keymap.set("n", "<leader>uf", function()
+  format.toggle()
+end, { desc = "Toggle format on save" })
 
 vim.keymap.set("n", "<leader>tn", function()
   go_test.run_nearest()

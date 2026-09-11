@@ -40,3 +40,13 @@ Go diagnostics come from two LSP clients:
 `golangci-lint`, such as `.golangci.yml`, `.golangci.yaml`, `.golangci.toml`,
 or `.golangci.json`. The extra `gopls` staticcheck-style lint analyzers are
 left off so project lint policy lives in `golangci-lint`.
+
+## Formatting
+
+Format-on-save is enabled by default and managed by `conform.nvim`.
+
+- Go files are formatted with `gofmt`.
+- JavaScript, TypeScript, CSS, HTML, JSON, YAML, and Markdown use Prettier only
+  when the project has a Prettier config file or a `prettier` key in
+  `package.json`.
+- `<leader>uf`: toggle format-on-save for the current Neovim session.
