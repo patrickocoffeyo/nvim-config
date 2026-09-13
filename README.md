@@ -30,6 +30,7 @@ tests/coverage, formatting, and Cursor Agent.
 General options live in `lua/config/options.lua`.
 
 - Line numbers and cursorline are enabled.
+- A vertical guide is shown at 80 characters.
 - Tabs default to 2 spaces, with Go overriding indentation to real tabs and
   width 4 in `lua/ftplugin/go.lua`.
 - Search uses ignorecase plus smartcase.
@@ -98,7 +99,12 @@ Buffer tabs:
 Telescope:
 
 - `<leader>ff`: find files.
-- `<leader>fg`: live grep.
+- `<leader>fg`: search project text with ripgrep, including hidden files but
+  excluding `.git`.
+- `<leader>fG`: search project text with ripgrep, including hidden and ignored
+  files but excluding `.git`.
+- `<leader>fw`: search for the word under the cursor.
+- `<leader>fr`: resume the previous Telescope picker.
 - `<leader>fb`: list buffers.
 - `<leader>fh`: search help tags.
 

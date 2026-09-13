@@ -3,6 +3,7 @@ local o = vim.opt
 -- UI-related options.
 o.number = true                   -- Show line numbers.
 o.cursorline = true               -- Highlight the current line.
+o.colorcolumn = "80"              -- Show a vertical guide at 80 characters.
 
 -- Tabs and indentation options.
 o.tabstop = 2                    -- Number of spaces that a <Tab> counts for.
