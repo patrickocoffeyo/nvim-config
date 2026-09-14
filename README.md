@@ -126,6 +126,7 @@ Go tests:
 - `<leader>ta`: run the full test suite.
 - `<leader>ts`: toggle the test summary.
 - `<leader>to`: open test output.
+- `q` or `<Esc>` in test output: close the output window.
 
 Cursor Agent:
 
