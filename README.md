@@ -1,7 +1,7 @@
 # nvim-config
 
 Personal Neovim config built around Lazy, Telescope, Tree-sitter, LSP, Go
-tests/coverage, formatting, and Cursor Agent.
+tests/coverage, formatting, and a reusable side terminal.
 
 ## Requirements
 
@@ -13,7 +13,6 @@ tests/coverage, formatting, and Cursor Agent.
 - `tree-sitter`, used to install and maintain Tree-sitter parsers.
 - Mason-managed Go tools: `gopls`, `golangci-lint`,
   `golangci-lint-langserver`, and `gotestsum`.
-- `cursor-agent` on `$PATH` for Cursor Agent integration.
 - Project-local or global `prettier`/`prettierd` for Prettier formatting.
 
 ## Installation
@@ -64,8 +63,6 @@ General options live in `lua/config/options.lua`.
 | `fredrikaverpil/neotest-golang` | `lua/plugins/neotest.lua` | Go adapter for Neotest. Uses `gotestsum`; duplicate subtest warnings are disabled. |
 | `andythigpen/nvim-coverage` | `lua/plugins/nvim-coverage.lua` | Coverage signs in the gutter with gruvbox-compatible covered/uncovered colors. |
 | `stevearc/conform.nvim` | `lua/plugins/format.lua` | Format-on-save for Go and project-configured Prettier filetypes. |
-| `xTacobaco/cursor-agent.nvim` | `lua/plugins/cursor.lua` | Cursor Agent terminal and context-sending commands inside Neovim. |
-
 Supporting dependencies include `nvim-lua/plenary.nvim`,
 `nvim-tree/nvim-web-devicons`, `MunifTanjim/nui.nvim`,
 `nvim-neotest/nvim-nio`, and `antoinemadec/FixCursorHold.nvim`.
@@ -75,6 +72,7 @@ Supporting dependencies include `nvim-lua/plenary.nvim`,
 General:
 
 - `<leader>uf`: toggle format-on-save for the current Neovim session.
+- `<leader>tt`: toggle a reusable terminal split on the right.
 - `<leader>la`: show LSP code actions.
 - `<leader>li`: organize imports for the current file.
 - `Z`: move to the previous Barbar buffer tab. This overrides Vim's default `ZZ`
@@ -95,6 +93,12 @@ Buffer tabs:
 - `<leader>bn`: move to the next Barbar buffer tab.
 - `<leader>bb`: pick a Barbar buffer tab by letter.
 - `<leader>bc`: close the current Barbar buffer tab.
+
+Terminal:
+
+- `<leader>tt`: toggle the right-side terminal.
+- `<C-q>` in the side terminal: close the terminal split.
+- `<Esc>` in the side terminal: leave terminal mode.
 
 Telescope:
 
@@ -127,13 +131,6 @@ Go tests:
 - `<leader>ts`: toggle the test summary.
 - `<leader>to`: open test output.
 - `q` or `<Esc>` in test output: close the output window.
-
-Cursor Agent:
-
-- `<leader>ca` in normal mode: toggle the Cursor Agent terminal.
-- `<C-q>` in a Cursor Agent terminal: close the floating window.
-- `<leader>ca` in visual mode: send the current selection to Cursor Agent.
-- `<leader>cA` in normal mode: send the current buffer to Cursor Agent.
 
 Completion:
 

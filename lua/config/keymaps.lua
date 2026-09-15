@@ -1,9 +1,14 @@
 local go_test = require("config.go-test")
 local format = require("config.format")
+local terminal = require("config.terminal")
 
 vim.keymap.set("n", "<leader>uf", function()
   format.toggle()
 end, { desc = "Toggle format on save" })
+
+vim.keymap.set("n", "<leader>tt", function()
+  terminal.toggle()
+end, { desc = "Toggle side terminal" })
 
 vim.keymap.set("n", "Z", "<Cmd>BufferPrevious<CR>", { desc = "Previous buffer tab" })
 vim.keymap.set("n", "X", "<Cmd>BufferNext<CR>", { desc = "Next buffer tab" })
