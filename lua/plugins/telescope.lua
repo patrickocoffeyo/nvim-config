@@ -55,6 +55,7 @@ return {
 
     -- Keymaps.
     local builtin = require("telescope.builtin")
+    vim.keymap.set("n", "<F1>", builtin.find_files, { desc = "Telescope find files" })
     vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Telescope find files" })
     vim.keymap.set("n", "<leader>fg", live_grep, { desc = "Telescope live grep" })
     vim.keymap.set("n", "<leader>fG", live_grep_everything, { desc = "Telescope live grep including ignored files" })

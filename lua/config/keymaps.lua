@@ -1,6 +1,13 @@
+local buffers = require("config.buffers")
 local go_test = require("config.go-test")
 local format = require("config.format")
 local terminal = require("config.terminal")
+
+vim.api.nvim_create_user_command("CloseBuffer", function()
+  buffers.close_current()
+end, { desc = "Close current view or buffer tab" })
+
+vim.cmd([[cnoreabbrev <expr> q getcmdtype() ==# ':' && getcmdline() ==# 'q' ? 'CloseBuffer' : 'q']])
 
 vim.keymap.set("n", "<leader>uf", function()
   format.toggle()
@@ -21,9 +28,12 @@ vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Focus right window" })
 vim.keymap.set("n", "<leader>bp", "<Cmd>BufferPrevious<CR>", { desc = "Previous buffer tab" })
 vim.keymap.set("n", "<leader>bn", "<Cmd>BufferNext<CR>", { desc = "Next buffer tab" })
 vim.keymap.set("n", "<leader>bb", "<Cmd>BufferPick<CR>", { desc = "Pick buffer tab" })
-vim.keymap.set("n", "<leader>bc", "<Cmd>BufferClose<CR>", { desc = "Close buffer tab" })
+vim.keymap.set("n", "<leader>bc", function()
+  buffers.close_current()
+end, { desc = "Close current view or buffer tab" })
 
 vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action, { desc = "LSP code action" })
+vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 
 vim.keymap.set("n", "<leader>li", function()
   vim.lsp.buf.code_action({
@@ -44,8 +54,8 @@ vim.keymap.set("n", "<leader>tf", function()
 end, { desc = "Run file tests" })
 
 vim.keymap.set("n", "<leader>tp", function()
-  go_test.run_package()
-end, { desc = "Run package tests" })
+  go_test.run_package(0, { open_panel = true })
+end, { desc = "Run package tests with output" })
 
 vim.keymap.set("n", "<leader>ta", function()
   go_test.run_suite()
@@ -56,5 +66,9 @@ vim.keymap.set("n", "<leader>ts", function()
 end, { desc = "Toggle test summary" })
 
 vim.keymap.set("n", "<leader>to", function()
+  go_test.toggle_output_panel()
+end, { desc = "Toggle Go package test output" })
+
+vim.keymap.set("n", "<leader>tO", function()
   require("neotest").output.open({ enter = true })
-end, { desc = "Show test output" })
+end, { desc = "Show Neotest output" })

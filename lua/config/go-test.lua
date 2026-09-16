@@ -8,6 +8,98 @@ local M = {}
 -- file so package directories stay clean.
 
 local package_runs = {}
+local output_panel = {
+  buf = nil,
+  win = nil,
+  lines = { "No Go package test run yet." },
+}
+
+-- Return whether the reusable Go test output split is currently visible.
+local function output_panel_valid()
+  return output_panel.win and vim.api.nvim_win_is_valid(output_panel.win)
+end
+
+-- Create or reuse the scratch buffer that stores the latest package test output.
+local function ensure_output_buffer()
+  if output_panel.buf and vim.api.nvim_buf_is_valid(output_panel.buf) then
+    return output_panel.buf
+  end
+
+  local buf = vim.api.nvim_create_buf(false, true)
+  output_panel.buf = buf
+
+  vim.bo[buf].buftype = "nofile"
+  vim.bo[buf].bufhidden = "hide"
+  vim.bo[buf].swapfile = false
+  vim.bo[buf].filetype = "go-test-output"
+  vim.api.nvim_buf_set_name(buf, "Go package test output")
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, output_panel.lines)
+  vim.bo[buf].modifiable = false
+
+  local opts = { buffer = buf, nowait = true, silent = true }
+  vim.keymap.set("n", "q", function()
+    M.close_output_panel()
+  end, vim.tbl_extend("force", opts, { desc = "Close Go test output" }))
+  vim.keymap.set("n", "<Esc>", function()
+    M.close_output_panel()
+  end, vim.tbl_extend("force", opts, { desc = "Close Go test output" }))
+
+  return buf
+end
+
+-- Remove the final empty string produced by splitting output that ends in "\n".
+local function trim_trailing_empty_line(lines)
+  if #lines > 1 and lines[#lines] == "" then
+    table.remove(lines)
+  end
+  return lines
+end
+
+-- Split stdout/stderr into lines while preserving intentional blank lines.
+local function split_output(text)
+  if not text or text == "" then
+    return {}
+  end
+
+  return trim_trailing_empty_line(vim.split(text:gsub("\r\n", "\n"), "\n", { plain = true }))
+end
+
+-- Replace the scratch buffer contents with the latest package test result.
+local function render_output(lines)
+  output_panel.lines = lines
+
+  local buf = ensure_output_buffer()
+  vim.bo[buf].modifiable = true
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  vim.bo[buf].modifiable = false
+end
+
+-- Add a titled stdout/stderr section when the command produced content there.
+local function append_section(lines, title, text)
+  local output = split_output(text)
+  if #output == 0 then
+    return
+  end
+
+  table.insert(lines, "")
+  table.insert(lines, title)
+  vim.list_extend(lines, output)
+end
+
+-- Render the command as a single readable line for the output panel.
+local function command_text(command)
+  return table.concat(command, " ")
+end
+
+-- Build the stable header shown at the top of every package test result.
+local function package_output_header(dir, command, status)
+  return {
+    "Go package tests: " .. vim.fn.fnamemodify(dir, ":~:."),
+    "Command: " .. command_text(command),
+    "Status: " .. status,
+    "",
+  }
+end
 
 -- Return the directory for the active/saved Go file; this is the package scope
 -- used for save-triggered runs.
@@ -179,6 +271,46 @@ function M.coverage_args()
   }
 end
 
+-- Show the reusable bottom split that displays current-package test output.
+function M.open_output_panel(opts)
+  opts = opts or {}
+
+  local buf = ensure_output_buffer()
+  if output_panel_valid() then
+    if opts.enter ~= false then
+      vim.api.nvim_set_current_win(output_panel.win)
+    end
+    return
+  end
+
+  local previous_win = vim.api.nvim_get_current_win()
+  vim.cmd("botright 12split")
+  output_panel.win = vim.api.nvim_get_current_win()
+  vim.api.nvim_win_set_buf(output_panel.win, buf)
+  vim.api.nvim_win_set_height(output_panel.win, 12)
+
+  if opts.enter == false and vim.api.nvim_win_is_valid(previous_win) then
+    vim.api.nvim_set_current_win(previous_win)
+  end
+end
+
+-- Close the reusable package test output split, keeping its buffer/results.
+function M.close_output_panel()
+  if output_panel_valid() then
+    vim.api.nvim_win_close(output_panel.win, true)
+  end
+  output_panel.win = nil
+end
+
+-- Toggle the package test output split for quick access while editing.
+function M.toggle_output_panel()
+  if output_panel_valid() then
+    M.close_output_panel()
+  else
+    M.open_output_panel()
+  end
+end
+
 -- Poll briefly for a coverprofile written by a Neotest run, then load it into
 -- the UI and remove the generated file.
 function M.show_coverage_when_ready(dir, bufnr)
@@ -226,24 +358,42 @@ end
 
 -- Run tests for exactly the current Go package. This is used on save so editing
 -- one package does not kick off tests elsewhere in the module.
-function M.run_package(bufnr)
+function M.run_package(bufnr, opts)
+  opts = opts or {}
+
   local dir = current_package_dir(bufnr)
   local root = current_project_root(bufnr)
   local path = coverage_file(dir)
+  local command = package_test_command(path)
 
   if package_runs[dir] then
+    if opts.open_panel then
+      M.open_output_panel({ enter = false })
+    end
     return
   end
 
   package_runs[dir] = true
+  render_output(package_output_header(dir, command, "running..."))
+
+  if opts.open_panel then
+    M.open_output_panel({ enter = false })
+  end
+
   if vim.uv.fs_stat(path) then
     vim.uv.fs_unlink(path)
   end
 
-  vim.system(package_test_command(path), { cwd = dir, text = true }, function(result)
+  vim.system(command, { cwd = dir, text = true }, function(result)
     package_runs[dir] = nil
 
     vim.schedule(function()
+      local status = result.code == 0 and "passed" or ("failed with exit code " .. result.code)
+      local lines = package_output_header(dir, command, status)
+      append_section(lines, "stdout:", result.stdout)
+      append_section(lines, "stderr:", result.stderr)
+      render_output(lines)
+
       if vim.uv.fs_stat(path) then
         load_coverage_file(path, root, bufnr)
       elseif result.code ~= 0 then

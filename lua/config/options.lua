@@ -22,6 +22,7 @@ o.wrap = false                   -- Disable line wrapping.
 o.timeoutlen = 400               -- Time to wait for a mapped sequence to complete (in milliseconds).
 o.splitright = true              -- New vertical splits will be to the right of the current window.
 o.splitbelow = true              -- New horizontal splits will be below the current window.
+o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize"
 
 -- Performance options.
 o.updatetime = 250          -- faster update time
