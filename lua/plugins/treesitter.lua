@@ -7,6 +7,8 @@ local languages = {
   "typescript",
   "tsx",
   "json",
+  "markdown",
+  "markdown_inline",
 }
 
 return {
@@ -30,6 +32,7 @@ return {
         "typescript",
         "typescriptreact",
         "json",
+        "markdown",
       },
       callback = function()
         pcall(vim.treesitter.start)

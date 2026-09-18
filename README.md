@@ -64,6 +64,7 @@ General options live in `lua/config/options.lua`.
 | `nvim-treesitter/nvim-treesitter` | `lua/plugins/treesitter.lua` | Tree-sitter parsing, highlighting, and indentation for configured languages. |
 | `nvim-treesitter/nvim-treesitter-context` | `lua/plugins/treesitter-context.lua` | Sticky code context at the top of the window. |
 | `windwp/nvim-ts-autotag` | `lua/plugins/treesitter-autotag.lua` | Auto-close and auto-rename paired HTML/TSX-style tags. |
+| `MeanderingProgrammer/render-markdown.nvim` | `lua/plugins/markdown.lua` | Rendered Markdown view inside Neovim, with an optional side preview. |
 | `nvim-neotest/neotest` | `lua/plugins/neotest.lua` | Test runner UI and commands. |
 | `fredrikaverpil/neotest-golang` | `lua/plugins/neotest.lua` | Go adapter for Neotest. Uses `gotestsum`; duplicate subtest warnings are disabled. |
 | `andythigpen/nvim-coverage` | `lua/plugins/nvim-coverage.lua` | Coverage signs in the gutter with gruvbox-compatible covered/uncovered colors. |
@@ -146,6 +147,11 @@ Telescope:
 - `<leader>fr`: resume the previous Telescope picker.
 - `<leader>fb`: list buffers.
 - `<leader>fh`: search help tags.
+
+Markdown:
+
+- `<leader>mp`: toggle rendered Markdown in the current buffer.
+- `<leader>mP`: open a rendered Markdown preview to the side.
 
 File tree:
 
