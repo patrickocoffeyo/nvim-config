@@ -6,14 +6,17 @@ local terminal = {
   job = nil,
 }
 
+-- Return true when the saved side-terminal window can still be targeted.
 local function is_valid_window(win)
   return win and vim.api.nvim_win_is_valid(win)
 end
 
+-- Return true when the saved terminal buffer still exists.
 local function is_valid_buffer(buf)
   return buf and vim.api.nvim_buf_is_valid(buf)
 end
 
+-- Check whether the shell job is still running without blocking the UI.
 local function job_is_alive(job)
   if not job or job == 0 then
     return false
@@ -23,20 +26,24 @@ local function job_is_alive(job)
   return ok and type(result) == "table" and result[1] == -1
 end
 
+-- The terminal should be an approprately-sized right sidebar.
 local function terminal_width()
   return math.max(32, math.floor(vim.o.columns * 0.28))
 end
 
+-- Add terminal-local escape hatches so the sidebar is easy to dismiss.
 local function set_terminal_keymaps(buf)
   local opts = { buffer = buf, nowait = true, silent = true }
 
   vim.keymap.set({ "n", "t" }, "<C-q>", function()
+    -- Require the module at call time so the buffer-local map survives reloads.
     require("config.terminal").close()
   end, vim.tbl_extend("force", opts, { desc = "Close side terminal" }))
 
   vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], vim.tbl_extend("force", opts, { desc = "Leave terminal mode" }))
 end
 
+-- Create a fresh terminal buffer and start the user's shell inside it.
 local function create_terminal_buffer()
   local buf = vim.api.nvim_create_buf(false, true)
 
@@ -47,9 +54,11 @@ local function create_terminal_buffer()
   vim.bo[buf].filetype = "side-terminal"
 
   terminal.buf = buf
-  terminal.job = vim.fn.termopen(vim.o.shell, {
+  terminal.job = vim.fn.jobstart(vim.o.shell, {
     cwd = vim.fn.getcwd(),
+    term = true,
     on_exit = function()
+      -- Mark the cached job as gone so the next open creates a fresh shell.
       terminal.job = nil
     end,
   })
@@ -57,6 +66,7 @@ local function create_terminal_buffer()
   set_terminal_keymaps(buf)
 end
 
+-- Close the terminal window while keeping the buffer/job available for reuse.
 function M.close()
   if is_valid_window(terminal.win) then
     vim.api.nvim_win_close(terminal.win, true)
@@ -65,6 +75,7 @@ function M.close()
   terminal.win = nil
 end
 
+-- Open or focus the reusable right-hand terminal split.
 function M.open()
   if is_valid_window(terminal.win) then
     vim.api.nvim_set_current_win(terminal.win)
@@ -84,6 +95,7 @@ function M.open()
   vim.cmd("startinsert")
 end
 
+-- Toggle the terminal split without killing the running shell.
 function M.toggle()
   if is_valid_window(terminal.win) then
     M.close()

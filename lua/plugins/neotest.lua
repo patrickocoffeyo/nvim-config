@@ -8,12 +8,15 @@ return {
     {
       "fredrikaverpil/neotest-golang",
       version = "*",
+      -- Install gotestsum for neotest-golang's preferred runner.
       build = function()
-        vim.system({"go", "install", "gotest.tools/gotestsum@latest"}):wait()
+        vim.system({ "go", "install", "gotest.tools/gotestsum@latest" }):wait()
       end,
     },
   },
 
+  -- Configure Neotest for manual runs; save-triggered package tests are handled
+  -- by config.go-test so they stay scoped to the current package.
   config = function()
     local go_test = require("config.go-test")
     local config = {
@@ -30,7 +33,9 @@ return {
 
     vim.api.nvim_create_autocmd("FileType", {
       pattern = "neotest-output",
+      -- Make Neotest's output pane dismissible with the same keys as other panes.
       callback = function(args)
+        -- Close whichever output window is currently active.
         local function close_output_window()
           local win = vim.api.nvim_get_current_win()
 
@@ -47,6 +52,8 @@ return {
 
     vim.api.nvim_create_autocmd("BufWritePost", {
       pattern = "*.go",
+      -- Re-run only the saved file's package so unrelated duplicate test names
+      -- elsewhere in the repo do not pollute the feedback loop.
       callback = function(args)
         go_test.run_package(args.buf)
       end,

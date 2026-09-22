@@ -3,12 +3,15 @@ local go_test = require("config.go-test")
 local format = require("config.format")
 local terminal = require("config.terminal")
 
+-- Route plain :q through the smarter buffer/window closer while preserving
+-- explicit commands like :qa, :q!, and :quit.
 vim.api.nvim_create_user_command("CloseBuffer", function()
   buffers.close_current()
 end, { desc = "Close current view or buffer tab" })
 
 vim.cmd([[cnoreabbrev <expr> q getcmdtype() ==# ':' && getcmdline() ==# 'q' ? 'CloseBuffer' : 'q']])
 
+-- General toggles.
 vim.keymap.set("n", "<leader>uf", function()
   format.toggle()
 end, { desc = "Toggle format on save" })
@@ -17,14 +20,17 @@ vim.keymap.set("n", "<leader>tt", function()
   terminal.toggle()
 end, { desc = "Toggle side terminal" })
 
+-- Barbar buffer-tab navigation.
 vim.keymap.set("n", "Z", "<Cmd>BufferPrevious<CR>", { desc = "Previous buffer tab" })
 vim.keymap.set("n", "X", "<Cmd>BufferNext<CR>", { desc = "Next buffer tab" })
 
+-- Window focus movement across splits and side panes.
 vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Focus left window" })
 vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Focus lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Focus upper window" })
 vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Focus right window" })
 
+-- Buffer-tab actions, with <leader>bc sharing the smart close behavior.
 vim.keymap.set("n", "<leader>bp", "<Cmd>BufferPrevious<CR>", { desc = "Previous buffer tab" })
 vim.keymap.set("n", "<leader>bn", "<Cmd>BufferNext<CR>", { desc = "Next buffer tab" })
 vim.keymap.set("n", "<leader>bb", "<Cmd>BufferPick<CR>", { desc = "Pick buffer tab" })
@@ -32,9 +38,11 @@ vim.keymap.set("n", "<leader>bc", function()
   buffers.close_current()
 end, { desc = "Close current view or buffer tab" })
 
+-- LSP actions.
 vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action, { desc = "LSP code action" })
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 
+-- Ask the language server for its organize-imports code action.
 vim.keymap.set("n", "<leader>li", function()
   vim.lsp.buf.code_action({
     apply = true,
@@ -45,6 +53,8 @@ vim.keymap.set("n", "<leader>li", function()
   })
 end, { desc = "Organize imports" })
 
+-- Go test shortcuts. Nearest/file/suite use Neotest; package runs use the
+-- scoped helper that also feeds coverage and the reusable output panel.
 vim.keymap.set("n", "<leader>tn", function()
   go_test.run_nearest()
 end, { desc = "Run nearest test" })

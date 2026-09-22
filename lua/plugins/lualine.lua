@@ -2,6 +2,7 @@ return {
   "nvim-lualine/lualine.nvim",
   dependencies = { "nvim-tree/nvim-web-devicons" },
   event = "VeryLazy",
+  -- Configure the global statusline after startup to keep initial load light.
   config = function()
     require("lualine").setup({
       options = {

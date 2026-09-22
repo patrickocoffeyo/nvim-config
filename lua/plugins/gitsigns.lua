@@ -22,13 +22,16 @@ return {
       use_focus = true,
     },
     current_line_blame_formatter = "<author>, <author_time:%R> - <summary>",
+    -- Register Git keymaps only for buffers that gitsigns has attached to.
     on_attach = function(bufnr)
       local gitsigns = require("gitsigns")
 
+      -- Keep buffer-local Git mappings concise and consistently described.
       local function map(mode, lhs, rhs, desc)
         vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
       end
 
+      -- Wrap gitsigns toggles so each one reports its new state.
       local function toggle(desc, action)
         return function()
           local enabled = action()
@@ -36,6 +39,7 @@ return {
         end
       end
 
+      -- Navigate hunks normally, but preserve native diff navigation in diff mode.
       map("n", "]h", function()
         if vim.wo.diff then
           vim.cmd.normal({ "]c", bang = true })
@@ -44,6 +48,7 @@ return {
         end
       end, "Next git hunk")
 
+      -- Mirror next-hunk behavior for backwards navigation.
       map("n", "[h", function()
         if vim.wo.diff then
           vim.cmd.normal({ "[c", bang = true })
@@ -58,6 +63,7 @@ return {
       end, "Show git blame for line")
       map("n", "<leader>gB", gitsigns.blame, "Show git blame for buffer")
       map("n", "<leader>gd", gitsigns.diffthis, "Diff buffer against index")
+      -- Diff against the previous revision of the current file.
       map("n", "<leader>gD", function()
         gitsigns.diffthis("~")
       end, "Diff buffer against previous commit")

@@ -7,21 +7,26 @@ return {
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
   },
 
+  -- Configure Telescope's defaults plus the project-search keymaps.
   config = function()
     local telescope = require("telescope")
 
+    -- Search visible and hidden files while keeping .git out of the results.
     local function live_grep()
       require("telescope.builtin").live_grep({
         prompt_title = "Search project",
+        -- Extra ripgrep flags for the standard project search.
         additional_args = function()
           return { "--hidden", "--glob", "!.git/*" }
         end,
       })
     end
 
+    -- Search even ignored files when the normal project search is too narrow.
     local function live_grep_everything()
       require("telescope.builtin").live_grep({
         prompt_title = "Search project, including ignored files",
+        -- Extra ripgrep flags for the broad search variant.
         additional_args = function()
           return { "--hidden", "--no-ignore", "--glob", "!.git/*" }
         end,

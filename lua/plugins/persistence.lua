@@ -1,6 +1,7 @@
 return {
   "folke/persistence.nvim",
   event = "BufReadPre",
+  -- Register session save/load guards before Persistence starts restoring.
   init = function()
     require("config.session").setup()
   end,
@@ -11,6 +12,7 @@ return {
   keys = {
     {
       "<leader>ss",
+      -- Restore the session tied to the current working directory.
       function()
         require("config.session").load()
       end,
@@ -18,6 +20,7 @@ return {
     },
     {
       "<leader>sS",
+      -- Open Persistence's picker when more than one saved session is relevant.
       function()
         require("config.session").select()
       end,
@@ -25,6 +28,7 @@ return {
     },
     {
       "<leader>sl",
+      -- Restore the most recently saved session regardless of cwd.
       function()
         require("config.session").load({ last = true })
       end,
@@ -32,6 +36,7 @@ return {
     },
     {
       "<leader>sd",
+      -- Stop autosave for throwaway edits in this Neovim process.
       function()
         require("config.session").stop()
       end,

@@ -2,6 +2,7 @@
 return {
   "ellisonleao/gruvbox.nvim",
   priority = 1000,
+  -- Load gruvbox early and use its dark variant as the base UI palette.
   config = function()
     vim.o.background = "dark"
     vim.cmd("colorscheme gruvbox")

@@ -7,6 +7,7 @@ return {
     "MunifTanjim/nui.nvim",
   },
 
+  -- Configure Neo-tree as the project drawer and handle directory startup.
   config = function()
     require("neo-tree").setup({
       close_if_last_window = true,
@@ -73,6 +74,7 @@ return {
 
     -- Auto open neotree on startup.
     vim.api.nvim_create_autocmd("VimEnter", {
+      -- If Neovim starts on a directory, replace that inert buffer with Neo-tree.
       callback = function()
         if open_directory_arg() then
           return

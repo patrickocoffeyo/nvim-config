@@ -15,10 +15,12 @@ return {
   "nvim-treesitter/nvim-treesitter",
   branch = "main",
   lazy = false,
+  -- Ensure all parsers used by this config are installed when plugins sync.
   build = function()
     require("nvim-treesitter").install(languages):wait(300000)
   end,
 
+  -- Start Tree-sitter highlighting/indentation for known filetypes.
   config = function()
     require("nvim-treesitter").setup()
 
@@ -34,6 +36,7 @@ return {
         "json",
         "markdown",
       },
+      -- Attach Tree-sitter to the buffer and use its indent expression.
       callback = function()
         pcall(vim.treesitter.start)
         vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"

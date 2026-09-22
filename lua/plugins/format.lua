@@ -19,6 +19,8 @@ local prettier_config_files = {
   "prettier.config.mts",
 }
 
+-- Detect a package.json-level Prettier config for projects that configure it
+-- there instead of using a standalone .prettierrc file.
 local function package_json_has_prettier(start)
   local package_json = vim.fs.find("package.json", {
     path = start,
@@ -33,6 +35,7 @@ local function package_json_has_prettier(start)
   return ok and type(data) == "table" and data.prettier ~= nil
 end
 
+-- Only enable Prettier formatters in projects that have opted into Prettier.
 local function has_prettier_config(_, ctx)
   local filename = ctx and ctx.filename or vim.api.nvim_buf_get_name(0)
   local start = filename ~= "" and vim.fs.dirname(vim.fs.normalize(filename)) or vim.uv.cwd()
@@ -45,10 +48,12 @@ end
 
 return {
   "stevearc/conform.nvim",
+  -- Build opts lazily so the runtime format toggle module is available.
   opts = function()
     local format = require("config.format")
 
     return {
+      -- Delegate per-save enable/disable behavior to config.format.
       format_on_save = function()
         return format.on_save()
       end,

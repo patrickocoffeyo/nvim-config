@@ -2,7 +2,10 @@ return {
   "andythigpen/nvim-coverage",
   dependencies = { "nvim-lua/plenary.nvim" },
 
+  -- Point nvim-coverage at the exact Go coverprofile produced by our test helper.
   config = function()
+    -- Prefer the explicit profile set by config.go-test, then fall back to the
+    -- current package and project-root coverage.out conventions.
     local function go_coverage_file()
       if vim.g.go_test_coverage_file and vim.uv.fs_stat(vim.g.go_test_coverage_file) then
         return vim.g.go_test_coverage_file

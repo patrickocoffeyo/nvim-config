@@ -1,6 +1,7 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
-if not vim.loop.fs_stat(lazypath) then
+-- Clone lazy.nvim on first launch so the rest of the plugin specs can load.
+if not vim.uv.fs_stat(lazypath) then
   vim.fn.system({
     "git",
     "clone",
@@ -13,6 +14,7 @@ end
 
 vim.opt.rtp:prepend(lazypath)
 
+-- Import every plugin spec from lua/plugins and keep startup behavior explicit.
 require("lazy").setup({
   spec = {
     { import = "plugins" },
