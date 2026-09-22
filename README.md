@@ -50,6 +50,7 @@ General options live in `lua/config/options.lua`.
 | `romgrk/barbar.nvim` | `lua/plugins/barbar.lua` | Polished top tabline for buffers, with clickable tabs, slanted separators, and buffer picking. Neo-tree buffers are hidden from the tabline. |
 | `nvim-lualine/lualine.nvim` | `lua/plugins/lualine.lua` | Statusline with mode, branch, diff, filename, filetype, progress, and location. |
 | `lewis6991/gitsigns.nvim` | `lua/plugins/gitsigns.lua` | GitLens-style buffer integration with changed-line gutter signs, current-line blame, hunk previews, hunk navigation, and blame/diff views. |
+| `linrongbin16/gitlinker.nvim` | `lua/plugins/gitlinker.lua` | Copies or opens GitHub-style permalinks for the current file line or selected range. |
 | `folke/persistence.nvim` | `lua/plugins/persistence.lua` | Project-aware session autosave and explicit restore/select commands. Sessions are saved per working directory. |
 | `nvim-neo-tree/neo-tree.nvim` | `lua/plugins/neotree.lua` | File tree. Opens automatically on startup when no file argument or one directory argument is provided. |
 | `nvim-telescope/telescope.nvim` | `lua/plugins/telescope.lua` | Fuzzy finding for files, grep, buffers, and help. |
@@ -124,6 +125,10 @@ Git:
 - `<leader>gB`: open blame for the current buffer.
 - `<leader>gd`: diff the current buffer against the index.
 - `<leader>gD`: diff the current buffer against the previous commit.
+- `<leader>gy`: copy a GitHub-style link for the current line or visual
+  selection.
+- `<leader>gY`: open a GitHub-style link for the current line or visual
+  selection.
 - `<leader>gts`: toggle Git signs in the sign column.
 - `<leader>gtb`: toggle current-line blame.
 - `<leader>gtw`: toggle word diff.
