@@ -51,6 +51,7 @@ General options live in `lua/config/options.lua`.
 | `nvim-lualine/lualine.nvim` | `lua/plugins/lualine.lua` | Statusline with mode, branch, diff, filename, filetype, progress, and location. |
 | `lewis6991/gitsigns.nvim` | `lua/plugins/gitsigns.lua` | GitLens-style buffer integration with changed-line gutter signs, current-line blame, hunk previews, hunk navigation, and blame/diff views. |
 | `linrongbin16/gitlinker.nvim` | `lua/plugins/gitlinker.lua` | Copies or opens GitHub-style permalinks for the current file line or selected range. |
+| `nvim-mini/mini.map` | `lua/plugins/minimap.lua` | Toggleable code minimap with search, diagnostic, and Git hunk markers. |
 | `folke/persistence.nvim` | `lua/plugins/persistence.lua` | Project-aware session autosave and explicit restore/select commands. Sessions are saved per working directory. |
 | `nvim-neo-tree/neo-tree.nvim` | `lua/plugins/neotree.lua` | File tree. Opens automatically on startup when no file argument or one directory argument is provided. |
 | `nvim-telescope/telescope.nvim` | `lua/plugins/telescope.lua` | Fuzzy finding for files, grep, buffers, and help. |
@@ -157,6 +158,10 @@ Markdown:
 
 - `<leader>mp`: toggle rendered Markdown in the current buffer.
 - `<leader>mP`: open a rendered Markdown preview to the side.
+
+Minimap:
+
+- `<leader>mm`: toggle the right-side code minimap.
 
 File tree:
 
