@@ -41,6 +41,7 @@ end, { desc = "Close current view or buffer tab" })
 -- LSP actions.
 vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action, { desc = "LSP code action" })
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
+vim.keymap.set("n", "<leader>lR", "<Cmd>LspRestart<CR>", { desc = "Reload files and restart LSP" })
 
 -- Ask the language server for its organize-imports code action.
 vim.keymap.set("n", "<leader>li", function()

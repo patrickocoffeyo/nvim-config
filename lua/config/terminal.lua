@@ -26,9 +26,17 @@ local function job_is_alive(job)
   return ok and type(result) == "table" and result[1] == -1
 end
 
--- The terminal should be an approprately-sized right sidebar.
+-- Return the preferred width for the terminal's narrow right sidebar.
 local function terminal_width()
-  return math.max(32, math.floor(vim.o.columns * 0.28))
+  return math.max(28, math.floor(vim.o.columns * 0.24))
+end
+
+-- Restore the sidebar width after Vim redistributes columns for another
+-- window closing. Without this, the terminal can inherit half the screen.
+local function restore_terminal_width()
+  if is_valid_window(terminal.win) then
+    pcall(vim.api.nvim_win_set_width, terminal.win, terminal_width())
+  end
 end
 
 -- Add terminal-local escape hatches so the sidebar is easy to dismiss.
@@ -103,5 +111,14 @@ function M.toggle()
     M.open()
   end
 end
+
+-- Reapply the terminal's intended proportion after window layout changes.
+local terminal_resize_group = vim.api.nvim_create_augroup("SideTerminalResize", { clear = true })
+vim.api.nvim_create_autocmd("WinClosed", {
+  group = terminal_resize_group,
+  callback = function()
+    vim.schedule(restore_terminal_width)
+  end,
+})
 
 return M

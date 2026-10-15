@@ -48,13 +48,50 @@ return {
         signs = true,
       })
 
+      -- Reload externally changed buffers, then restart language servers attached
+      -- to the current buffer. This gives gopls a fresh workspace after tools
+      -- such as go generate add or rewrite project files.
+      vim.api.nvim_create_user_command("LspRestart", function()
+        vim.cmd("checktime")
+
+        local names = {}
+        for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
+          if vim.lsp.is_enabled(client.name) then
+            names[client.name] = true
+            client:stop(true)
+          end
+        end
+
+        local enabled_names = vim.tbl_keys(names)
+        if #enabled_names == 0 then
+          vim.notify("No language servers are attached to this buffer.", vim.log.levels.WARN)
+          return
+        end
+
+        vim.schedule(function()
+          vim.lsp.enable(enabled_names)
+          vim.notify("Restarted LSP: " .. table.concat(enabled_names, ", "))
+        end)
+      end, { desc = "Reload changed files and restart current LSP clients" })
+
       local capabilities = require("blink.cmp").get_lsp_capabilities()
+
+      -- Neovim disables workspace file watching by default on Linux. Opt gopls
+      -- into it so changes to unopened Go files from go generate or agents are
+      -- reported through the LSP protocol. With inotify-tools installed,
+      -- Neovim uses inotifywait instead of its less capable fallback watcher.
+      local gopls_capabilities = vim.deepcopy(capabilities)
+      gopls_capabilities.workspace = gopls_capabilities.workspace or {}
+      gopls_capabilities.workspace.didChangeWatchedFiles = {
+        dynamicRegistration = true,
+        relativePatternSupport = true,
+      }
 
       -- Go language server: completion, auto-import suggestions, and gofumpt.
       vim.lsp.config("gopls", {
         cmd = { mason_bin .. "gopls" },
         root_markers = { "go.work", "go.mod", ".git" },
-        capabilities = capabilities,
+        capabilities = gopls_capabilities,
         settings = {
           gopls = {
             completeFunctionCalls = false,

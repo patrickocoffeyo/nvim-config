@@ -11,6 +11,8 @@ tests/coverage, formatting, Git blame, and a reusable side terminal.
 - Go toolchain, including `gofmt`.
 - `goimports`, used for Go format-on-save and import cleanup.
 - `tree-sitter`, used to install and maintain Tree-sitter parsers.
+- `inotify-tools`, used to notify `gopls` when unopened Go workspace files are
+  changed by generators or agent tools on Linux.
 - Mason-managed Go tools: `gopls`, `golangci-lint`,
   `golangci-lint-langserver`, and `gotestsum`.
 - Project-local or global `prettier`/`prettierd` for Prettier formatting.
@@ -36,6 +38,9 @@ General options live in `lua/config/options.lua`.
 - System clipboard integration uses `unnamedplus`.
 - Line wrapping and swapfiles are disabled.
 - Splits open right and below.
+- Files updated externally by agent terminals or other tools are checked when
+  focus returns to an editing window. Unmodified buffers reload automatically;
+  buffers with local unsaved edits remain protected.
 - Sessions save buffers, current directory, folds, help windows, tab pages, and
   window sizes.
 - True color is enabled.
@@ -70,6 +75,10 @@ General options live in `lua/config/options.lua`.
 | `nvim-neotest/neotest` | `lua/plugins/neotest.lua` | Test runner UI and commands. |
 | `fredrikaverpil/neotest-golang` | `lua/plugins/neotest.lua` | Go adapter for Neotest. Uses `gotestsum`; duplicate subtest warnings are disabled. |
 | `andythigpen/nvim-coverage` | `lua/plugins/nvim-coverage.lua` | Coverage signs in the gutter with gruvbox-compatible covered/uncovered colors. |
+| `mfussenegger/nvim-dap` | `lua/plugins/debug.lua` | Debug Adapter Protocol client used to control debug sessions. |
+| `leoluz/nvim-dap-go` | `lua/plugins/debug.lua` | Delve-backed Go debugging, including the nearest test under the cursor. |
+| `rcarriga/nvim-dap-ui` | `lua/plugins/debug.lua` | Temporary debugger layout for variables, call stack, watches, breakpoints, REPL, and console. |
+| `theHamsta/nvim-dap-virtual-text` | `lua/plugins/debug.lua` | Shows paused debugger variable values inline beside Go code. |
 | `stevearc/conform.nvim` | `lua/plugins/format.lua` | Format-on-save for Go and project-configured Prettier filetypes. |
 Supporting dependencies include `nvim-lua/plenary.nvim`,
 `nvim-tree/nvim-web-devicons`, `MunifTanjim/nui.nvim`,
@@ -84,9 +93,11 @@ General:
   output/side terminal close as windows. `:q!`, `:qa`, and `:quit` keep their
   normal Vim behavior.
 - `<leader>uf`: toggle format-on-save for the current Neovim session.
-- `<leader>tt`: toggle a reusable terminal split on the right.
+- `<leader>tt`: toggle a reusable, narrow terminal split on the right.
 - `<leader>la`: show LSP code actions.
 - `<leader>li`: organize imports for the current file.
+- `<leader>lR`: reload externally changed files and restart language servers
+  attached to the current buffer.
 - `gd`: go to the definition of the symbol under the cursor.
 - `Z`: move to the previous Barbar buffer tab. This overrides Vim's default `ZZ`
   prefix behavior.
@@ -137,7 +148,8 @@ Git:
 
 Terminal:
 
-- `<leader>tt`: toggle the right-side terminal.
+- `<leader>tt`: toggle the narrow right-side terminal. It returns to its
+  sidebar width after other splits close.
 - `<C-q>` in the side terminal: close the terminal split.
 - `<Esc>` in the side terminal: leave terminal mode.
 
@@ -185,6 +197,20 @@ Go tests:
 - `<leader>tO`: open Neotest output for manual Neotest runs.
 - `q` or `<Esc>` in test output panels: close the output window.
 
+Debugging:
+
+- `<leader>dt`: debug the nearest Go test under the cursor.
+- `<leader>dT`: debug the last Go test again.
+- `<leader>dc` or `<F5>`: start or continue a debug session. For Go, select a
+  launch configuration when prompted.
+- `<leader>db`: toggle a breakpoint on the current line.
+- `<leader>dB`: set a conditional breakpoint on the current line.
+- `<F10>`: step over.
+- `<F11>`: step into.
+- `<F12>`: step out.
+- `<leader>du`: toggle the debugger UI.
+- `<leader>dx`: terminate the active debug session.
+
 Completion:
 
 - `<Tab>` in insert mode: select the next completion item when the menu is open,
@@ -216,6 +242,21 @@ The package runner keeps its latest stdout/stderr in a reusable bottom panel.
 Open it with `<leader>to`, run the current package with `<leader>tp`, and leave
 it open while editing if you want save-triggered package runs to refresh in
 place like a small VSCode-style Go test pane.
+
+## Go Debugging
+
+Go debugging is powered by `nvim-dap`, `nvim-dap-go`, and Delve. `nvim-dap-go`
+uses Tree-sitter to locate the nearest Go test and starts Delve automatically.
+Install Delve once and ensure it is on your `PATH`:
+
+```bash
+go install github.com/go-delve/delve/cmd/dlv@latest
+```
+
+Start with `<leader>dt` while the cursor is in a Go test, set breakpoints with
+`<leader>db`, then use the step mappings above. The debugger UI opens only
+while a session is running and closes when Delve exits, leaving normal editing
+and test output untouched.
 
 ## Sessions
 
@@ -249,6 +290,15 @@ left off so project lint policy lives in `golangci-lint`.
 function-call completion and placeholders are disabled. That keeps symbol and
 auto-import suggestions available without inserting full call signatures with
 placeholder arguments.
+
+When `go generate` or an agent adds/rewrites files and diagnostics still look
+stale, use `<leader>lR` or `:LspRestart`. The command runs `:checktime` first,
+then restarts language servers attached to the current buffer so `gopls`
+rebuilds its project view.
+
+With `inotify-tools` installed, `gopls` also receives automatic workspace file
+events for unopened Go files. This keeps completion and diagnostics current
+when `go generate` or an agent changes another package in the module.
 
 ## Formatting
 

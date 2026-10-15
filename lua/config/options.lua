@@ -23,6 +23,7 @@ o.timeoutlen = 400               -- Time to wait for a mapped sequence to comple
 o.splitright = true              -- New vertical splits will be to the right of the current window.
 o.splitbelow = true              -- New horizontal splits will be below the current window.
 o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize"
+o.autoread = true                -- Reload unchanged buffers after files are updated outside Neovim.
 
 -- Performance options.
 o.updatetime = 250          -- faster update time
@@ -32,3 +33,14 @@ o.termguicolors = true      -- full color support
 -- File encoding options.
 o.encoding = "utf-8"
 o.fileencoding = "utf-8"
+
+-- Check files changed by agent terminals or other external tools when focus
+-- returns to an editing window. Autoread reloads only unmodified buffers, so
+-- local unsaved edits are never silently replaced.
+local external_change_group = vim.api.nvim_create_augroup("CheckExternalFileChanges", { clear = true })
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "WinEnter", "TermLeave" }, {
+  group = external_change_group,
+  callback = function()
+    vim.cmd("checktime")
+  end,
+})
